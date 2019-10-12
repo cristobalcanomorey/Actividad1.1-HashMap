@@ -16,14 +16,14 @@ public class Main {
 		
 		Paginable pg = new Paginable(ap);
 		
-//		pg.add(p4);
+		pg.add(p4);
 
 		Producto<?>[] pag1 = pg.getPage(0);
-		
+//		
 		System.out.println("==================");
 		System.out.println("Numero de páginas: " + pg.getTotalPages());
 		System.out.println("==================");
-		
+//		
 		System.out.println("Pag 1:");
 		for (int i = 0; i < pag1.length; i++) {
 			System.out.println(pag1[i].getNom());
@@ -34,7 +34,7 @@ public class Main {
 		for (int i = 0; i < pag2.length; i++) {
 			System.out.println(pag2[i].getNom());
 		}
-		
+//		
 		System.out.println("===================");
 		System.out.println("Pag 1 después de quitar tomate: ");
 		pg.remove(p2);
