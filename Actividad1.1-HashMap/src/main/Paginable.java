@@ -9,18 +9,12 @@ import java.util.Set;
 
 public class Paginable<E extends Producto> {
 
-	/*
-	 * add() V remove() V contains() V getPage(int index) V findPageOf(Producto p) V
-	 * int getTotalPages() V size() V
-	 */
-
-//	private ArrayList<Producto<?>> productos = new ArrayList<Producto<?>>();
 	private HashMap<Integer, Producto<?>> productos = new HashMap<Integer, Producto<?>>();
 	private int prodPorPag = 3;
 	private int numDePags = 0;
 
 	/***
-	 * Crea un paginable transformando un array de productos a un ArrayList sin
+	 * Crea un paginable transformando un array de productos a un HashMap sin
 	 * productos repetidos
 	 * 
 	 * @param prod Array de productos
@@ -32,10 +26,10 @@ public class Paginable<E extends Producto> {
 	}
 
 	/***
-	 * Devuelve un array sin productos repetidos
+	 * Devuelve un HashMap sin productos repetidos
 	 * 
-	 * @param prod
-	 * @return
+	 * @param prod Array de productos que puede contener repetidos
+	 * @return HashMap de productos únicos
 	 */
 	private HashMap<Integer, Producto<?>> quitaRepetidos(Producto<?>[] prod) {
 		ArrayList<Producto<?>> lista = new ArrayList<Producto<?>>(Arrays.asList(prod));
@@ -48,6 +42,30 @@ public class Paginable<E extends Producto> {
 		return deArrayAHashMap(listaSinRepe);
 	}
 	
+	/***
+	 * Añade productos en el array si no está repetida y actualiza el nº de páginas
+	 * buscando la página del último producto añadido
+	 * 
+	 * @param p Producto que intenta añadir
+	 * @return True si ha funcionado, false si no
+	 */
+	public boolean add(Producto<?> p) {
+		if (!productos.containsKey(p.getId())) {
+			productos.put(p.getId(),p);
+			numDePags = findPageOf(p, deHashAArrayList(productos));
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+	
+
+	/***
+	 * Crea un HashMap y le mete los productos del ArrayList
+	 * @param prod ArrayList de productos
+	 * @return HashMap de productos
+	 */
 	private HashMap<Integer, Producto<?>> deArrayAHashMap(ArrayList<Producto<?>> prod){
 		HashMap<Integer, Producto<?>> mProductos = new HashMap<>(prod.size());
 		for (Producto<?> producto : prod) {
@@ -55,25 +73,13 @@ public class Paginable<E extends Producto> {
 		}
 		return mProductos;
 	}
-
+	
 	/***
-	 * Añade productos en el array si no está repetida y actualiza el nº de páginas
-	 * buscando la página del último producto añadido
-	 * 
-	 * @param p Producto
+	 * Crea un ArrayList y le mete los productos del HashMap
+	 * @param hash HashMap de productos
+	 * @return ArrayList de productos
 	 */
-	public boolean add(Producto<?> p) {
-		if (!productos.containsKey(p.getId())) {
-			productos.put(p.getId(),p);
-			numDePags = findPageOf(p, deHashAArray(productos));
-			return true;
-		} else {
-			return false;
-		}
-
-	}
-
-	private ArrayList<Producto<?>> deHashAArray(HashMap<Integer, Producto<?>> hash) {
+	private ArrayList<Producto<?>> deHashAArrayList(HashMap<Integer, Producto<?>> hash) {
 		Set<Integer> ids = productos.keySet();
 		Object[] array = ids.toArray();
 		ArrayList<Producto<?>> arrayList = new ArrayList<Producto<?>>();
@@ -85,15 +91,16 @@ public class Paginable<E extends Producto> {
 	}
 
 	/***
-	 * Elimina el producto del array si está y actualiza el nº de páginas buscando
+	 * Elimina el producto del array si existe y actualiza el nº de páginas buscando
 	 * la página del último elemento de la lista
 	 * 
-	 * @param p Producto
+	 * @param p Producto que intenta eliminar
+	 * @return True si ha funcionado, false si no
 	 */
 	public boolean remove(Producto<?> p) {
 		if (contains(p)) {
 			productos.remove(p.getId());
-			ArrayList<Producto<?>> lista = deHashAArray(productos);
+			ArrayList<Producto<?>> lista = deHashAArrayList(productos);
 			numDePags = findPageOf(lista.get(lista.size() - 1),lista);
 			return true;
 		} else {
@@ -105,8 +112,8 @@ public class Paginable<E extends Producto> {
 	/***
 	 * Busca si el producto está en el array
 	 * 
-	 * @param p Producto
-	 * @return True si p está en el array
+	 * @param p Producto que se quiere encontrar
+	 * @return True si está en el array, false si no
 	 */
 	public boolean contains(Producto<?> producto) {
 		boolean resul = false;
@@ -126,7 +133,7 @@ public class Paginable<E extends Producto> {
 	 * como un array
 	 * 
 	 * @param n Número de página
-	 * @return Devuelve array de productos
+	 * @return Array de productos en esa página
 	 */
 	public Producto<?>[] getPage(int n) {
 		int tamPag = prodPorPag;
@@ -137,7 +144,7 @@ public class Paginable<E extends Producto> {
 			tamPag = ultProd - primProd;
 		}
 		Producto<?>[] resul = new Producto<?>[tamPag];
-		ArrayList<Producto<?>> lista = deHashAArray(productos);
+		ArrayList<Producto<?>> lista = deHashAArrayList(productos);
 		List pag = lista.subList(primProd, ultProd);
 
 		for (int i = 0; i < pag.size(); i++) {
@@ -147,19 +154,21 @@ public class Paginable<E extends Producto> {
 	}
 	
 	/***
+	 * Encuentra la página del producto
 	 * 
-	 * @param p
-	 * @return
+	 * @param p Producto a buscar
+	 * @return -1 si no está, nº de página si está
 	 */
 	public int findPageOf(Producto<?>p) {
-		return findPageOf(p,deHashAArray(productos));
+		return findPageOf(p,deHashAArrayList(productos));
 	}
 	
 	/***
-	 * Devuelve el nº de página en la que se encuentra el producto
+	 * Encuentra la página del producto
 	 * 
-	 * @param p Producto a buscar
-	 * @return -1 si no está o el nº de pag si está
+	 * @param p     Producto a buscar
+	 * @param lista ArrayList de productos
+	 * @return -1 si no está, nº de página si está
 	 */
 	private int findPageOf(Producto<?> p, ArrayList<Producto<?>> lista) {
 		if (!lista.contains(p)) {
@@ -170,10 +179,12 @@ public class Paginable<E extends Producto> {
 	}
 	
 	/***
+	 * Encuentra la página del producto en una lista ordenada de mayór a menor o
+	 * viceversa
 	 * 
-	 * @param p
-	 * @param orden
-	 * @return
+	 * @param p     Producto a buscar
+	 * @param orden True = menor a mayor, False = mayor a menor
+	 * @return -1 si no está, nº de página si está
 	 */
 	public int findPageOf(Producto<?> p, boolean orden) {
 		ArrayList<Producto<?>> ordenados = ordenar(orden);
@@ -181,12 +192,13 @@ public class Paginable<E extends Producto> {
 	}
 	
 	/***
+	 * Ordena un array con los productos
 	 * 
-	 * @param menAMay
-	 * @return
+	 * @param menAMay True = menor a mayor, False = mayor a menor
+	 * @return ArrayList con los productos ordenados
 	 */
 	private ArrayList<Producto<?>> ordenar(boolean menAMay) {
-		ArrayList<Producto<?>> ordenados = deHashAArray(productos);
+		ArrayList<Producto<?>> ordenados = deHashAArrayList(productos);
 		if (menAMay) {
 			Collections.sort(ordenados);
 			return ordenados;
