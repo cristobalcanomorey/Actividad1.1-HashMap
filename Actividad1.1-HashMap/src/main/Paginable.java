@@ -41,7 +41,7 @@ public class Paginable<E extends Producto> {
 		}
 		return deArrayAHashMap(listaSinRepe);
 	}
-	
+
 	/***
 	 * Añade productos en el array si no está repetida y actualiza el nº de páginas
 	 * buscando la página del último producto añadido
@@ -51,7 +51,7 @@ public class Paginable<E extends Producto> {
 	 */
 	public boolean add(Producto<?> p) {
 		if (!productos.containsKey(p.getId())) {
-			productos.put(p.getId(),p);
+			productos.put(p.getId(), p);
 			numDePags = findPageOf(p, deHashAArrayList(productos));
 			return true;
 		} else {
@@ -59,23 +59,24 @@ public class Paginable<E extends Producto> {
 		}
 
 	}
-	
 
 	/***
 	 * Crea un HashMap y le mete los productos del ArrayList
+	 * 
 	 * @param prod ArrayList de productos
 	 * @return HashMap de productos
 	 */
-	private HashMap<Integer, Producto<?>> deArrayAHashMap(ArrayList<Producto<?>> prod){
+	private HashMap<Integer, Producto<?>> deArrayAHashMap(ArrayList<Producto<?>> prod) {
 		HashMap<Integer, Producto<?>> mProductos = new HashMap<>(prod.size());
 		for (Producto<?> producto : prod) {
 			mProductos.put(producto.getId(), producto);
 		}
 		return mProductos;
 	}
-	
+
 	/***
 	 * Crea un ArrayList y le mete los productos del HashMap
+	 * 
 	 * @param hash HashMap de productos
 	 * @return ArrayList de productos
 	 */
@@ -86,12 +87,12 @@ public class Paginable<E extends Producto> {
 		for (Object id : array) {
 			arrayList.add(hash.get(id));
 		}
-		return arrayList;		
-		
+		return arrayList;
+
 	}
 
 	/***
-	 * Elimina el producto del array si existe y actualiza el nº de páginas buscando
+	 * Elimina el producto del HashMap si existe y actualiza el nº de páginas buscando
 	 * la página del último elemento de la lista
 	 * 
 	 * @param p Producto que intenta eliminar
@@ -101,7 +102,7 @@ public class Paginable<E extends Producto> {
 		if (contains(p)) {
 			productos.remove(p.getId());
 			ArrayList<Producto<?>> lista = deHashAArrayList(productos);
-			numDePags = findPageOf(lista.get(lista.size() - 1),lista);
+			numDePags = findPageOf(lista.get(lista.size() - 1), lista);
 			return true;
 		} else {
 			return false;
@@ -110,7 +111,7 @@ public class Paginable<E extends Producto> {
 	}
 
 	/***
-	 * Busca si el producto está en el array
+	 * Busca si el producto está en el mapa
 	 * 
 	 * @param p Producto que se quiere encontrar
 	 * @return True si está en el array, false si no
@@ -118,8 +119,8 @@ public class Paginable<E extends Producto> {
 	public boolean contains(Producto<?> producto) {
 		boolean resul = false;
 		Set<Integer> ids = productos.keySet();
-		for(Integer id: ids) {
-			if(resul) {
+		for (Integer id : ids) {
+			if (resul) {
 				break;
 			} else {
 				resul = producto.equals(productos.get(id));
@@ -152,17 +153,17 @@ public class Paginable<E extends Producto> {
 		}
 		return resul;
 	}
-	
+
 	/***
 	 * Encuentra la página del producto
 	 * 
 	 * @param p Producto a buscar
 	 * @return -1 si no está, nº de página si está
 	 */
-	public int findPageOf(Producto<?>p) {
-		return findPageOf(p,deHashAArrayList(productos));
+	public int findPageOf(Producto<?> p) {
+		return findPageOf(p, deHashAArrayList(productos));
 	}
-	
+
 	/***
 	 * Encuentra la página del producto
 	 * 
@@ -174,10 +175,10 @@ public class Paginable<E extends Producto> {
 		if (!lista.contains(p)) {
 			return -1;
 		} else {
-			return (int) Math.ceil((double)(lista.indexOf(p) + 1) / prodPorPag);
+			return (int) Math.ceil((double) (lista.indexOf(p) + 1) / prodPorPag);
 		}
 	}
-	
+
 	/***
 	 * Encuentra la página del producto en una lista ordenada de mayór a menor o
 	 * viceversa
@@ -190,7 +191,7 @@ public class Paginable<E extends Producto> {
 		ArrayList<Producto<?>> ordenados = ordenar(orden);
 		return findPageOf(p, ordenados);
 	}
-	
+
 	/***
 	 * Ordena un array con los productos
 	 * 
@@ -207,7 +208,7 @@ public class Paginable<E extends Producto> {
 			return ordenados;
 		}
 	}
-	
+
 	public int getTotalPages() {
 		return numDePags;
 	}
